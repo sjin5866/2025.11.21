@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>학교 & 학급 건의함</title>
-
-    <!-- Tailwind CDN -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학교 & 학급 건의함 (관리자)</title>
+    <!-- Tailwind CSS CDN 로드: 반응형 디자인 및 스타일링을 위해 사용 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #eef2ff;
+            background-color: #eef2ff; /* 연한 인디고 배경 */
         }
         .container-card {
             max-width: 800px;
             min-height: 80vh;
         }
+        /* 커스텀 스크롤바 스타일 */
         .suggestion-list::-webkit-scrollbar {
             width: 8px;
         }
         .suggestion-list::-webkit-scrollbar-thumb {
-            background-color: #93c5fd;
+            background-color: #93c5fd; /* 밝은 파랑 */
             border-radius: 10px;
         }
         .suggestion-list::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #f1f5f9; /* 연한 회색 */
         }
+        
+        /* 버튼 포커스 시 시각적 개선 */
         .btn-focus:focus {
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5); /* 인디고 링 */
             outline: none;
         }
     </style>
@@ -37,43 +39,55 @@
 
     <div class="container-card w-full bg-white rounded-2xl shadow-2xl p-6 sm:p-10 my-8">
         <h1 class="text-4xl font-extrabold text-center text-indigo-800 mb-8 border-b-4 border-indigo-200 pb-4">
-            학교 & 학급 건의함
+            🏫 학교 & 학급 건의함 🗣️
         </h1>
 
-        <div id="user-info" class="text-sm text-gray-700 mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded-lg shadow-inner">
-            <p><span class="font-bold">사용자 ID:</span> <span id="current-user-id" class="font-mono text-xs break-all">인증 중...</span></p>
+        <!-- 사용자 정보 및 로컬 저장소 경고 -->
+        <div id="user-info" class="text-sm text-gray-700 mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-inner">
+            <p><span class="font-bold">⚠️ 주의:</span> 이 앱은 현재 브라우저에만 저장됩니다. 데이터가 공유되지 않습니다.</p>
+            <p><span class="font-bold">사용자 ID (로컬):</span> <span id="current-user-id" class="font-mono text-xs break-all">로드 중...</span></p>
         </div>
 
+
+        <!-- 건의함 범위 선택 탭 -->
         <div class="flex mb-6 bg-gray-100 p-1 rounded-xl shadow-md">
-            <button id="tab-school" data-scope="school"
-                    class="flex-1 py-3 text-center text-lg font-semibold rounded-lg transition duration-300 btn-focus
+            <button id="tab-school" data-scope="school" 
+                    class="flex-1 py-3 text-center text-lg font-semibold rounded-lg transition duration-300 btn-focus 
                            bg-indigo-600 text-white shadow-lg">
                 학교 건의함
             </button>
-            <button id="tab-class" data-scope="class"
-                    class="flex-1 py-3 text-center text-lg font-semibold rounded-lg transition duration-300 btn-focus
+            <button id="tab-class" data-scope="class" 
+                    class="flex-1 py-3 text-center text-lg font-semibold rounded-lg transition duration-300 btn-focus 
                            text-gray-700 hover:bg-white/50">
                 학급 건의함
             </button>
         </div>
-
+        
+        <!-- 관리자 제어 영역 -->
         <div id="admin-view-controls" class="mb-8 p-5 border border-gray-300 rounded-xl bg-gray-50 shadow-inner">
-            <h2 class="text-xl font-bold text-gray-700 mb-3">전체 목록 보기 (관리자 모드)</h2>
+            <h2 class="text-xl font-bold text-gray-700 mb-3">관리자 제어 패널</h2>
             <div id="password-input-area" class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
                 <input type="password" id="admin-password" placeholder="비밀번호 입력"
                        class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition duration-150">
                 <button type="button" id="admin-login-button"
                         class="px-6 py-3 bg-gray-700 text-white font-bold rounded-lg hover:bg-gray-800 transition duration-300 shadow-md btn-focus">
-                    확인
+                    관리자 로그인
                 </button>
             </div>
             <div id="admin-view-status" class="mt-3 text-sm font-medium">
-                <p id="view-mode-text" class="text-red-500">현재: 내가 쓴 글만 보기</p>
+                <p id="view-mode-text" class="text-gray-500">현재: 내가 쓴 글만 보기 (로그아웃)</p>
             </div>
+            
+            <!-- 관리자 로그인 성공 시 나타나는 버튼 -->
+            <button id="clear-data-button" 
+                    class="mt-4 w-full py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-300 shadow-lg hidden btn-focus">
+                🚨 로컬 건의사항 데이터 전체 삭제 🚨
+            </button>
         </div>
 
-        <form id="suggestion-form" class="mb-10 p-6 border border-indigo-300 rounded-2xl bg-indigo-50 shadow-lg">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-4">새로운 건의사항 제출</h2>
+        <!-- 건의사항 작성 폼 -->
+        <form id="suggestion-form" class="mb-10 p-6 border border-indigo-300 rounded-2xl bg-indigo-500/5 shadow-lg">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">✍️ 새로운 건의사항 제출</h2>
             <input type="text" id="suggestion-title" placeholder="제목을 입력하세요 (예: 급식 잔반 문제 개선)" required
                    class="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition duration-150">
             <textarea id="suggestion-content" rows="5" placeholder="내용을 자세하고 정중하게 적어주세요." required
@@ -85,46 +99,29 @@
             <p id="form-message" class="text-center text-sm mt-3 hidden"></p>
         </form>
 
+        <!-- 건의사항 목록 표시 영역 -->
         <div>
-            <h2 id="list-title" class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">학교 건의사항 목록</h2>
+            <h2 id="list-title" class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">학교 건의사항 목록 (내가 쓴 글만)</h2>
             <div id="suggestions-list" class="suggestion-list space-y-4 max-h-[60vh] overflow-y-auto pr-3">
-                <p id="loading-message" class="text-center text-gray-500 p-8">데이터를 불러오는 중...</p>
+                <!-- 건의사항이 여기에 동적으로 추가됩니다 -->
+                <p id="loading-message" class="text-center text-gray-500 p-8">로컬 데이터를 불러오는 중...</p>
             </div>
             <p id="no-suggestions" class="text-center text-gray-500 mt-6 p-4 hidden border rounded-lg bg-white shadow-sm">아직 등록된 건의사항이 없습니다.</p>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp, setLogLevel
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // 관리자 비밀번호 (개발/테스트용). 배포 시 안전한 방식으로 대체
-        const ADMIN_PASSWORD = '202517';
-
-        // TODO: 실제 Firebase 설정 입력
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        const appId = 'school-suggestion-box-web';
-
-        let db;
-        let auth;
-        let currentUserId = null;
+    <!-- 애플리케이션 로직 (Local Storage JavaScript) -->
+    <script>
+        // --- 설정 ---
+        const LOCAL_STORAGE_KEY = 'school_suggestions_v1';
+        const ADMIN_PASSWORD = '17202517'; // 요청하신 관리자 비밀번호
+        
+        let currentUserId = localStorage.getItem('localUserId') || crypto.randomUUID();
+        localStorage.setItem('localUserId', currentUserId); 
         let currentScope = 'school';
-        let isAuthReady = false;
-        let viewAllMode = false;
-        let unsubscribe = null;
+        let isAdmin = false; // 관리자 로그인 상태
 
-        // UI 엘리먼트 캐싱
+        // UI 요소 캐싱
         const listTitleEl = document.getElementById('list-title');
         const suggestionsListEl = document.getElementById('suggestions-list');
         const loadingMessageEl = document.getElementById('loading-message');
@@ -135,123 +132,74 @@
         const adminPasswordEl = document.getElementById('admin-password');
         const adminLoginButton = document.getElementById('admin-login-button');
         const viewModeTextEl = document.getElementById('view-mode-text');
+        const clearDataButton = document.getElementById('clear-data-button');
 
-        // Firebase 초기화
-        async function initializeFirebase() {
-            try {
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('YOUR_API_KEY')) {
-                    console.warn("경고: Firebase 설정값이 플레이스홀더입니다. 실제 값으로 교체하세요.");
-                }
+        userIdEl.textContent = currentUserId;
 
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
+        // --- Local Storage 데이터 로드 ---
+        function loadSuggestions() {
+            const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            const allSuggestions = storedData ? JSON.parse(storedData) : [];
+            
+            let filteredSuggestions;
 
-                // Firestore 로그 레벨 설정
-                setLogLevel('error');
-
-                // 익명 로그인 시도
-                await signInAnonymously(auth);
-
-                // 인증 상태 리스너
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        userIdEl.textContent = currentUserId;
-                        isAuthReady = true;
-                        startRealtimeListener(currentScope);
-                    } else {
-                        userIdEl.textContent = '인증 실패';
-                        isAuthReady = true;
-                        loadingMessageEl.classList.add('hidden');
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase 초기화 또는 인증 오류:", error);
-                userIdEl.textContent = '오류 발생 (콘솔 확인)';
-                loadingMessageEl.textContent = '서비스 초기화에 실패했습니다.';
+            // 관리자 여부에 따라 필터링 로직 변경
+            if (isAdmin) {
+                // 관리자: 현재 스코프의 모든 건의사항 보기
+                filteredSuggestions = allSuggestions.filter(s => s.scope === currentScope);
+            } else {
+                // 일반 사용자: 현재 스코프 중 본인이 작성한 건의사항만 보기
+                filteredSuggestions = allSuggestions.filter(s => s.scope === currentScope && s.userId === currentUserId);
             }
+
+            // 클라이언트 측 정렬 (최신 순)
+            filteredSuggestions.sort((a, b) => b.timestamp - a.timestamp);
+
+            renderSuggestions(filteredSuggestions);
         }
 
-        // 실시간 리스너 시작
-        function startRealtimeListener(scope) {
-            if (unsubscribe) {
-                try { unsubscribe(); } catch (e) { /* ignore */ }
-                unsubscribe = null;
-            }
-
-            if (!db || !isAuthReady || !currentUserId) {
-                return;
-            }
-
-            const collectionPath = `/artifacts/${appId}/public/data/suggestions`;
-            const suggestionsCol = collection(db, collectionPath);
-
-            const queryArgs = [suggestionsCol, where('scope', '==', scope)];
-            if (!viewAllMode) {
-                queryArgs.push(where('userId', '==', currentUserId));
-            }
-
-            const q = query(...queryArgs);
-
-            suggestionsListEl.innerHTML = '';
-            loadingMessageEl.classList.remove('hidden');
-            noSuggestionsEl.classList.add('hidden');
-
-            unsubscribe = onSnapshot(q, (snapshot) => {
-                loadingMessageEl.classList.add('hidden');
-
-                const suggestions = [];
-                snapshot.forEach(doc => {
-                    suggestions.push({ id: doc.id, ...doc.data() });
-                });
-
-                // 서버 타임스탬프 정렬이 불확실할 때를 대비해 클라이언트에서 정렬
-                suggestions.sort((a, b) => (b.timestamp?.toMillis?.() || 0) - (a.timestamp?.toMillis?.() || 0));
-
-                renderSuggestions(suggestions);
-            }, (error) => {
-                console.error("실시간 데이터 로딩 오류:", error);
-                loadingMessageEl.textContent = '데이터 로딩 중 오류 발생. (콘솔 확인)';
-                if (unsubscribe) {
-                    try { unsubscribe(); } catch (e) { /* ignore */ }
-                    unsubscribe = null;
-                }
-            });
-        }
-
-        // 타임스탬프 포맷
+        // 타임스탬프 변환
         function formatTimestamp(timestamp) {
             if (!timestamp) return '시간 정보 없음';
-            const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+            const date = new Date(timestamp);
+            
             return date.toLocaleString('ko-KR', {
                 year: 'numeric', month: '2-digit', day: '2-digit',
                 hour: '2-digit', minute: '2-digit'
             });
         }
-
-        // View 모드 UI 업데이트
-        function updateViewModeUI() {
-            if (viewAllMode) {
-                viewModeTextEl.textContent = '현재: 모든 건의사항 보기 (관리자 모드)';
+        
+        // 관리자 UI 업데이트
+        function updateAdminUI() {
+            if (isAdmin) {
+                viewModeTextEl.textContent = '현재: 모든 건의사항 보기 (관리자)';
                 viewModeTextEl.className = 'text-green-600 mt-2 text-sm font-bold';
-                adminLoginButton.textContent = '로그아웃';
+                adminLoginButton.textContent = '관리자 로그아웃';
                 adminPasswordEl.classList.add('hidden');
-                adminPasswordEl.value = '';
+                clearDataButton.classList.remove('hidden');
             } else {
-                viewModeTextEl.textContent = '현재: 내가 쓴 글만 보기';
-                viewModeTextEl.className = 'text-red-500 mt-2 text-sm font-bold';
-                adminLoginButton.textContent = '확인';
+                viewModeTextEl.textContent = '현재: 내가 쓴 글만 보기 (로그아웃)';
+                viewModeTextEl.className = 'text-gray-500 mt-2 text-sm font-medium';
+                adminLoginButton.textContent = '관리자 로그인';
                 adminPasswordEl.classList.remove('hidden');
+                adminPasswordEl.value = '';
+                clearDataButton.classList.add('hidden');
             }
-
-            const scopeText = currentScope === 'school' ? '학교' : '학급';
-            listTitleEl.textContent = `${scopeText} 건의사항 목록${viewAllMode ? ' (전체 보기)' : ' (내 글만 보기)'}`;
+            // 뷰 모드가 변경되었으므로 목록 제목 업데이트
+            updateListTitle();
         }
 
-        // 렌더링
+        // 목록 제목 업데이트
+        function updateListTitle() {
+            const scopeText = currentScope === 'school' ? '학교' : '학급';
+            const modeText = isAdmin ? ' (관리자 모드, 전체 보기)' : ' (내가 쓴 글만)';
+            listTitleEl.textContent = `${scopeText} 건의사항 목록${modeText}`;
+        }
+
+        // 목록 렌더링
         function renderSuggestions(suggestions) {
             suggestionsListEl.innerHTML = '';
+            loadingMessageEl.classList.add('hidden');
 
             if (suggestions.length === 0) {
                 noSuggestionsEl.classList.remove('hidden');
@@ -263,134 +211,211 @@
             suggestions.forEach(suggestion => {
                 const isMine = suggestion.userId === currentUserId;
                 const formattedDate = formatTimestamp(suggestion.timestamp);
+                const hasReply = suggestion.adminReply && suggestion.adminReply.trim().length > 0;
 
                 const suggestionEl = document.createElement('div');
-                suggestionEl.className = `p-5 border-l-4 rounded-xl shadow-lg transition duration-200 hover:shadow-xl ${isMine ? 'border-green-500 bg-green-50' : 'border-indigo-500 bg-white hover:bg-gray-50'}`;
-
-                suggestionEl.innerHTML = `
+                suggestionEl.className = `p-5 border-l-4 rounded-xl shadow-lg transition duration-200 ${hasReply ? 'border-yellow-600 bg-yellow-50' : (isMine ? 'border-green-500 bg-green-50' : 'border-indigo-500 bg-white hover:bg-gray-50')}`;
+                suggestionEl.dataset.id = suggestion.id; // 삭제/답글을 위해 ID 저장
+                
+                let innerHTML = `
                     <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-bold text-gray-900 break-words">${escapeHtml(suggestion.title)}</h3>
-                        <span class="text-xs font-semibold ${isMine ? 'text-green-700 bg-green-200' : 'text-indigo-700 bg-indigo-200'} px-3 py-1 rounded-full">
-                            ${isMine ? '내가 쓴 글' : '건의사항'}
+                        <h3 class="text-xl font-bold text-gray-900 break-words">${suggestion.title}</h3>
+                        <span class="text-xs font-semibold ${hasReply ? 'text-yellow-800 bg-yellow-300' : (isMine ? 'text-green-700 bg-green-200' : 'text-indigo-700 bg-indigo-200')} px-3 py-1 rounded-full">
+                            ${hasReply ? '답변 완료' : (isMine ? '내가 쓴 글' : '건의사항')}
                         </span>
                     </div>
-                    <p class="text-base text-gray-700 mb-4 whitespace-pre-wrap leading-relaxed">${escapeHtml(suggestion.content)}</p>
+                    <p class="text-base text-gray-700 mb-4 whitespace-pre-wrap leading-relaxed">${suggestion.content}</p>
                     <div class="text-xs text-gray-500 border-t border-gray-200 pt-3 mt-3">
-                        <p>작성자 ID: <span class="font-mono text-gray-700 font-semibold">${viewAllMode ? suggestion.userId : (suggestion.userId ? suggestion.userId.substring(0,8) + '...' : '익명')}</span></p>
+                        <p>작성자 ID: <span class="font-mono text-gray-700 font-semibold">${suggestion.userId.substring(0, 8) + '...'}</span></p>
                         <p>작성일: ${formattedDate}</p>
                     </div>
                 `;
+
+                // 관리자 답글 표시 영역
+                if (hasReply) {
+                    innerHTML += `
+                        <div class="mt-4 p-4 border border-yellow-400 bg-yellow-100/70 rounded-lg shadow-inner">
+                            <h4 class="font-bold text-yellow-800 mb-2 flex items-center">
+                                <span class="text-lg mr-2">✍️</span> 관리자 답변
+                            </h4>
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap">${suggestion.adminReply}</p>
+                        </div>
+                    `;
+                }
+
+                // 관리자 액션 버튼 및 답글 폼
+                if (isAdmin) {
+                    innerHTML += `
+                        <div class="mt-4 border-t border-gray-200 pt-4 space-y-3">
+                            <button class="delete-suggestion-btn w-full py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition duration-150 shadow-md" data-id="${suggestion.id}">
+                                🗑️ 이 건의사항 삭제
+                            </button>
+                            <form class="admin-reply-form space-y-2" data-id="${suggestion.id}">
+                                <textarea name="replyContent" rows="3" placeholder="관리자 답글 작성..." required
+                                    class="w-full p-2 border border-indigo-300 rounded-lg focus:ring-1 focus:ring-indigo-500">${suggestion.adminReply || ''}</textarea>
+                                <button type="submit" class="w-full py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
+                                    ${hasReply ? '답글 수정/저장' : '답글 작성/저장'}
+                                </button>
+                            </form>
+                        </div>
+                    `;
+                }
+
+                suggestionEl.innerHTML = innerHTML;
                 suggestionsListEl.appendChild(suggestionEl);
+
+                // 관리자 액션 이벤트 리스너를 동적으로 연결
+                if (isAdmin) {
+                    suggestionEl.querySelector('.delete-suggestion-btn').addEventListener('click', handleDeleteSuggestion);
+                    suggestionEl.querySelector('.admin-reply-form').addEventListener('submit', handleAdminReply);
+                }
             });
         }
-
-        // 간단한 HTML 이스케이프
-        function escapeHtml(text) {
-            if (!text && text !== 0) return '';
-            return String(text)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
-
+        
         // 관리자 로그인/로그아웃 처리
-        async function handleAdminLogin(e) {
-            if (e) e.preventDefault();
-
-            if (viewAllMode) {
-                viewAllMode = false;
-                updateViewModeUI();
-                startRealtimeListener(currentScope);
+        function handleAdminLogin(event) {
+            if (event) event.preventDefault(); 
+            
+            if (isAdmin) {
+                // 로그아웃 처리
+                isAdmin = false;
+                updateAdminUI();
+                loadSuggestions(); // 뷰 모드 변경 후 목록 새로고침
                 displayMessage('관리자 모드에서 로그아웃했습니다.', 'text-gray-600');
                 return;
             }
 
             const password = adminPasswordEl.value.trim();
+
             if (password === ADMIN_PASSWORD) {
-                viewAllMode = true;
-                updateViewModeUI();
-                startRealtimeListener(currentScope);
-                displayMessage('관리자 모드 활성화: 모든 글 보기', 'text-green-600');
+                isAdmin = true;
+                updateAdminUI();
+                loadSuggestions(); // 뷰 모드 변경 후 목록 새로고침
+                displayMessage('관리자 모드가 활성화되었습니다. 모든 글을 볼 수 있습니다.', 'text-green-600');
             } else {
                 displayMessage('비밀번호가 일치하지 않습니다.', 'text-red-500');
                 adminPasswordEl.value = '';
-                adminPasswordEl.focus();
             }
         }
 
-        // 제출 처리
-        async function handleSubmit(event) {
+        // 건의사항 전체 삭제 (관리자 기능)
+        function handleClearData() {
+            // 경고 없이 바로 삭제 (iframe 환경이므로)
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            isAdmin = false; // 데이터 삭제 후 로그아웃
+            updateAdminUI();
+            loadSuggestions();
+            displayMessage('✅ 모든 건의사항 데이터가 삭제되었습니다. (이 브라우저에서만)', 'text-green-600');
+        }
+        
+        // 특정 건의사항 삭제 (관리자 기능)
+        function handleDeleteSuggestion(event) {
+            const suggestionId = event.target.dataset.id;
+            
+            const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            let allSuggestions = storedData ? JSON.parse(storedData) : [];
+            
+            // 해당 ID를 가진 건의사항 제외하고 필터링
+            allSuggestions = allSuggestions.filter(s => s.id !== suggestionId);
+            
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allSuggestions));
+            
+            loadSuggestions(); // 목록 새로고침
+            displayMessage('✅ 건의사항이 삭제되었습니다.', 'text-green-600');
+        }
+
+        // 관리자 답글 저장 (관리자 기능)
+        function handleAdminReply(event) {
+            event.preventDefault();
+            const form = event.target;
+            const suggestionId = form.dataset.id;
+            const replyContent = form.querySelector('textarea').value.trim();
+
+            const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            let allSuggestions = storedData ? JSON.parse(storedData) : [];
+            let updated = false;
+
+            allSuggestions = allSuggestions.map(s => {
+                if (s.id === suggestionId) {
+                    s.adminReply = replyContent;
+                    updated = true;
+                }
+                return s;
+            });
+            
+            if (updated) {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allSuggestions));
+                loadSuggestions(); // 목록 새로고침
+                displayMessage('✅ 관리자 답글이 저장되었습니다.', 'text-green-600');
+            } else {
+                displayMessage('답글 저장 중 오류가 발생했습니다.', 'text-red-600');
+            }
+        }
+
+        // 건의사항 제출 처리 (Local Storage 사용)
+        function handleSubmit(event) {
             event.preventDefault();
 
-            if (!isAuthReady || !currentUserId || !db) {
-                displayMessage('인증 대기 중이니 잠시 후 시도해 봐', 'text-red-500');
-                return;
-            }
-
-            const titleEl = document.getElementById('suggestion-title');
-            const contentEl = document.getElementById('suggestion-content');
-            const title = titleEl.value.trim();
-            const content = contentEl.value.trim();
+            const title = document.getElementById('suggestion-title').value.trim();
+            const content = document.getElementById('suggestion-content').value.trim();
 
             if (!title || !content) {
-                displayMessage('제목과 내용을 모두 입력해 줘', 'text-red-500');
+                displayMessage('제목과 내용을 모두 입력해 주세요.', 'text-red-500');
                 return;
             }
 
             submitButton.disabled = true;
             submitButton.textContent = '제출 중...';
-            displayMessage('서버에 건의사항을 제출하는 중', 'text-indigo-500');
+            displayMessage('로컬 저장소에 건의사항을 저장 중입니다...', 'text-indigo-500');
 
             try {
-                const collectionPath = `/artifacts/${appId}/public/data/suggestions`;
-                await addDoc(collection(db, collectionPath), {
+                const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+                const allSuggestions = storedData ? JSON.parse(storedData) : [];
+
+                const newSuggestion = {
+                    id: Date.now().toString() + Math.random().toString(36).substring(2),
                     title: title,
                     content: content,
                     scope: currentScope,
                     userId: currentUserId,
-                    timestamp: serverTimestamp()
-                });
+                    timestamp: Date.now(), // 로컬 타임스탬프
+                    adminReply: '' // 초기 답글은 비어있음
+                };
+                
+                allSuggestions.push(newSuggestion);
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allSuggestions));
 
-                titleEl.value = '';
-                contentEl.value = '';
-                displayMessage('건의사항이 성공적으로 제출됐어', 'text-green-600');
+                document.getElementById('suggestion-form').reset();
+                displayMessage('✅ 건의사항이 로컬에 성공적으로 저장되었습니다!', 'text-green-600');
+                
+                loadSuggestions();
 
-                // 자동으로 '내 글만 보기' 상태에서 본인 글이 보이도록 리스너 재시작
-                if (!viewAllMode) startRealtimeListener(currentScope);
             } catch (error) {
-                console.error("건의사항 제출 오류:", error);
-                let errorMessage = '제출 중 알 수 없는 오류가 발생했어';
-                if (error && error.message && error.message.includes('permission denied')) {
-                    errorMessage = '제출 권한이 없어. Firebase 보안 규칙을 확인해줘';
-                } else if (error && error.message) {
-                    errorMessage = `제출 오류: ${error.message.split('\n')[0]}`;
-                }
-                displayMessage(errorMessage, 'text-red-600');
+                console.error("로컬 저장소 오류:", error);
+                displayMessage(`로컬 저장소 저장 오류: ${error.message}`, 'text-red-600');
             } finally {
                 submitButton.disabled = false;
                 submitButton.textContent = '건의하기';
             }
         }
-
-        // 메시지 표시
+        
+        // 화면 메시지 표시
         function displayMessage(message, className) {
             formMessageEl.textContent = message;
             formMessageEl.className = `text-center text-base mt-4 font-semibold ${className}`;
             formMessageEl.classList.remove('hidden');
-
+            
             setTimeout(() => {
                 formMessageEl.classList.add('hidden');
-            }, 5000);
+            }, 5000); 
         }
 
         // 탭 전환
         function switchScope(newScope) {
             if (currentScope === newScope) return;
-
+            
             currentScope = newScope;
-
+            
             document.querySelectorAll('[data-scope]').forEach(btn => {
                 const isSelected = btn.dataset.scope === newScope;
                 btn.classList.toggle('bg-indigo-600', isSelected);
@@ -400,30 +425,32 @@
                 btn.classList.toggle('hover:bg-white/50', !isSelected);
             });
 
-            updateViewModeUI();
-
-            if (isAuthReady) {
-                startRealtimeListener(currentScope);
-            }
+            updateListTitle();
+            loadSuggestions(); // 스코프 변경 시 로컬 데이터 다시 로드
         }
-
-        // 초기화 및 이벤트 바인딩
+        
+        // --- 초기 설정 및 이벤트 리스너 등록 ---
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('suggestion-form').addEventListener('submit', handleSubmit);
             document.getElementById('tab-school').addEventListener('click', () => switchScope('school'));
             document.getElementById('tab-class').addEventListener('click', () => switchScope('class'));
-
+            
+            // 관리자 이벤트 리스너
             adminLoginButton.addEventListener('click', handleAdminLogin);
             adminPasswordEl.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    handleAdminLogin(e);
+                    handleAdminLogin(e); 
                 }
             });
-
-            // Firebase 초기화 실행
-            initializeFirebase();
+            clearDataButton.addEventListener('click', handleClearData);
+            
+            // 초기 로드
+            updateAdminUI();
+            loadSuggestions();
         });
+
     </script>
 </body>
 </html>
+
